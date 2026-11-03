@@ -21,3 +21,9 @@ soft_tb = 24              # eddig korlátlan a feltöltés
 hard_tb = 29              # eddig arányosan elosztja a maradékot, utána csepegtet
 trickle_kib = 64          # KiB/s a hard_tb elérése után
 tx_offset_tb = 0          # a vnstat indulása előtti havi forgalom (csak az első hónapban)
+
+[handover]                # hard_tb elérésekor: átadás a seedboxnak
+enabled = false
+switch_away_cmd = "ssh -o BatchMode=yes seedbox ~/.local/bin/autobrr-aither-target local"
+switch_back_cmd = "ssh -o BatchMode=yes seedbox ~/.local/bin/autobrr-aither-target vps"
+evacuate_flag = "~/.local/state/aither-relay/EVACUATE"   # a qbit-aither-relay soron kívül mindent átküld

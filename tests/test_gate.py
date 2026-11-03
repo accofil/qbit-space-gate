@@ -87,5 +87,40 @@ class GuardTest(unittest.TestCase):
         self.assertTrue(65536 < mid < 3 * TB / (14 * 86400))
 
 
+class HandoverTest(unittest.TestCase):
+    def test_away_and_back(self):
+        import os
+        import tempfile
+        from qbit_traffic_guard import handover
+        flag = os.path.join(tempfile.mkdtemp(), "EVACUATE")
+        q, state = FakeQbit(), {}
+        h = {"switch_away_cmd": "exit 0", "switch_back_cmd": "exit 0", "evacuate_flag": flag}
+        handover(q, h, state, "2026-11", int(28 * TB), 29)
+        self.assertEqual((q.calls, state), ([], {}))
+        handover(q, h, state, "2026-11", int(29.1 * TB), 29)
+        self.assertEqual(q.calls, [("stop", "all")])
+        self.assertTrue(os.path.exists(flag))
+        self.assertEqual(state["evacuated"], "2026-11")
+        handover(q, h, state, "2026-11", int(29.2 * TB), 29)      # once per month
+        self.assertEqual(len(q.calls), 1)
+        handover(q, h, state, "2026-12", 0, 29)
+        self.assertFalse(os.path.exists(flag))
+        self.assertEqual(state, {})
+
+    def test_failed_switch_is_retried(self):
+        import os
+        import tempfile
+        from qbit_traffic_guard import handover
+        flag = os.path.join(tempfile.mkdtemp(), "EVACUATE")
+        q, state = FakeQbit(), {}
+        h = {"switch_away_cmd": "exit 1", "evacuate_flag": flag}
+        handover(q, h, state, "2026-11", int(29.1 * TB), 29)
+        self.assertTrue(os.path.exists(flag))       # stopping and evacuating never wait for the hook
+        self.assertNotIn("evacuated", state)        # but the hook is tried again next time
+        h["switch_away_cmd"] = "exit 0"
+        handover(q, h, state, "2026-11", int(29.1 * TB), 29)
+        self.assertEqual(state.get("evacuated"), "2026-11")
+
+
 if __name__ == "__main__":
     unittest.main()
