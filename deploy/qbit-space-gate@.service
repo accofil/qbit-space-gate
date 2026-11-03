@@ -1,0 +1,12 @@
+[Unit]
+Description=qBittorrent space gate (start new torrents only within budget)
+After=network-online.target qbittorrent-nox@%i.service qbittorrent@%i.service
+
+[Service]
+User=%i
+ExecStart=/usr/bin/python3 /opt/qbit-space-gate/qbit_space_gate.py /etc/qbit-space-gate/config.toml
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

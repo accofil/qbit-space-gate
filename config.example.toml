@@ -1,0 +1,23 @@
+# qbit-space-gate / qbit-traffic-guard – másold ide: /etc/qbit-space-gate/config.toml
+# (root:USER 640). A jelszót csak a szerveren lévő példányba írd, a repóba ne.
+
+[qbittorrent]
+url = "http://127.0.0.1:8080"
+username = "USER"
+password = "CHANGE_ME"
+
+[gate]
+categories = ["aither"]   # csak ezeket a kategóriákat kezeli
+limit_gb = 180            # az elindított torrentek teljes mérete legfeljebb ennyi lehet
+min_free_gb = 10          # ennyi hely mindig maradjon a lemezen (minden futó letöltés után)
+safe_progress = 0.05      # már futó, de be nem férő torrentet csak ez alatt töröl (H&R védelem)
+poll_seconds = 0.5        # ilyen gyakran néz rá az új torrentekre
+disk = "~/torrents"       # ezen a lemezen méri a szabad helyet
+state_dir = "~/.local/state"
+
+[guard]
+interface = "eth0"
+soft_tb = 24              # eddig korlátlan a feltöltés
+hard_tb = 29              # eddig arányosan elosztja a maradékot, utána csepegtet
+trickle_kib = 64          # KiB/s a hard_tb elérése után
+tx_offset_tb = 0          # a vnstat indulása előtti havi forgalom (csak az első hónapban)

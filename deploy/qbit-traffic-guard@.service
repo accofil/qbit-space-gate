@@ -1,0 +1,7 @@
+[Unit]
+Description=Keep qBittorrent upload inside the monthly outbound quota
+
+[Service]
+Type=oneshot
+User=%i
+ExecStart=/usr/bin/python3 /opt/qbit-space-gate/qbit_traffic_guard.py /etc/qbit-space-gate/config.toml
